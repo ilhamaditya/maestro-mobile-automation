@@ -22,26 +22,34 @@ ENV MAESTRO_VERSION=${MAESTRO_VERSION} \
 
 # The official install script honors MAESTRO_DIR/MAESTRO_VERSION (confirmed
 # by reading get.maestro.mobile.dev, 2026-07-14), installing pinned and
-# in-place here. Also creates the non-root "maestro" user this image runs as.
+# in-place here.
+#
+# Runs as the "node" user/group (uid/gid 1000) that node:20-bookworm-slim
+# already ships, rather than creating a new "maestro" one - confirmed by
+# building this image, 2026-07-14: a `groupadd --gid 1000 maestro` here
+# collides with that pre-existing group and fails the build (exit code 4).
+#
+# The Debian package that actually provides the `adb` binary is named `adb`
+# - `android-sdk-platform-tools` is a same-sounding but different package
+# (misc SDK utilities like mke2fs/sqlite3, not adb itself). Confirmed by
+# building this image and finding `adb: not found` on PATH, 2026-07-14.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openjdk-17-jre-headless \
-        android-sdk-platform-tools \
+        adb \
         curl \
         unzip \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL "https://get.maestro.mobile.dev" | bash \
-    && groupadd --gid 1000 maestro \
-    && useradd --uid 1000 --gid maestro --shell /bin/bash --create-home maestro \
-    && chown -R maestro:maestro /opt/maestro
+    && chown -R node:node /opt/maestro
 
 WORKDIR /workspace
 COPY tools/package*.json tools/
 RUN cd tools && npm install
 
 COPY . .
-RUN chown -R maestro:maestro /workspace
+RUN chown -R node:node /workspace
 
-USER maestro
+USER node
 
 CMD ["bash"]
