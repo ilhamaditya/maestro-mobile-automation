@@ -5,7 +5,7 @@
 Four jobs, run on every push and pull request:
 
 1. **`lint`** (`ubuntu-latest`) - `npm ci`, `npm run typecheck`, `npm run lint`
-   (all three convention checks), `npm test`. Gates everything below.
+   (both convention checks), `npm test`. Gates everything below.
 2. **`android-smoke`** (`ubuntu-latest`, needs `lint`) - installs Maestro,
    fetches the sample app, boots an emulator via
    `reactivecircus/android-emulator-runner` (native KVM access on the

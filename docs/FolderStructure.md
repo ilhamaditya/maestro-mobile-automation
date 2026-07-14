@@ -11,7 +11,6 @@ maestro-mobile-automation/
 │   │   ├── sub-flows/         Layer 3 - generic technical interactions
 │   │   └── common-components/ Layer 4 - reusable UI-pattern interactions
 │   └── scripts/               Maestro-native JS (runScript/evalScript)
-├── features/                  Gherkin scenarios (business documentation of record)
 ├── config/environments/       .env.<target>.example per environment
 ├── test-data/fixtures/        Static JSON consumed by tools/ factories
 ├── apps/{android,ios}/        Sample-app fetch destinations (gitignored binaries)
@@ -33,7 +32,7 @@ the "built" table in that same file, with what you verified it against.
 
 | You're adding... | Goes in |
 |---|---|
-| A new business scenario | `features/*.feature` (Gherkin) + `.maestro/flows/features/<capability>/` (Maestro), cross-referenced by a `@flow:` tag |
+| A new business scenario | `.maestro/flows/features/<capability>/` - selector-free, named and tagged after the business behavior (see `docs/FlowGuide.md`) |
 | A new business capability's implementation | `.maestro/flows/reusable/<capability>/` |
 | A new generic technical interaction (not UI-pattern-specific) | `.maestro/flows/sub-flows/` |
 | A new reusable UI pattern (nav, dialog, picker) | `.maestro/flows/common-components/<pattern>/` |

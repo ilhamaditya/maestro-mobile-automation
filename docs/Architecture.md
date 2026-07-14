@@ -3,8 +3,8 @@
 ## Why this exists
 
 This repository is the foundation of the company's mobile test automation
-platform: BDD-first, Maestro-based, built to be maintained by many engineers
-across many teams for years, not a one-off test script collection. Every
+platform: Maestro-based, built to be maintained by many engineers across
+many teams for years, not a one-off test script collection. Every
 architectural decision below optimizes for that timeline over short-term
 convenience.
 
@@ -47,22 +47,22 @@ screenshot) invoked from hooks or reusable flows. **Common Components** are
 reusable UI-pattern interactions (a bottom nav, a dialog) that multiple
 business capabilities might share.
 
-## The BDD traceability model
+## Why no Gherkin layer
 
-```
-Business Requirement -> features/*.feature (Gherkin, stakeholder-readable)
-                              | @flow:<name> tag
-                              v
-                         Layer-1 flow file
-```
-
-Each Gherkin scenario carries a `@flow:<name>` tag naming its corresponding
-Layer-1 flow file. `tools/src/lint/check-feature-flow-mapping.ts` fails CI if
-either side references something that doesn't exist on the other -
-traceability is enforced, not aspirational. Flows that aren't business
-scenarios (e.g. `ios-pipeline-smoke.yaml`, a CI health check) are tagged
-`pipeline-check` and explicitly exempted rather than forced into a fake
-mapping.
+An earlier draft of this repository paired every Layer-1 flow with a
+Gherkin `.feature` file (business requirement -> `.feature` scenario ->
+`@flow:<name>` tag -> Layer-1 flow), enforced in CI by a traceability lint
+check. It was deliberately removed: this platform's real audience is QA/dev
+engineers, not non-technical stakeholders reading `.feature` files as living
+documentation, so the second file bought no readability that a
+selector-free, business-capability-named Layer-1 flow doesn't already give -
+`name:`, `tags:`, and a readable filename - while adding a second artifact to
+keep in sync and a bespoke lint check to maintain (Maestro has no native
+Cucumber/Gherkin execution, so this was always a custom approximation, not
+an industry-standard integration). The Layer-1 flow file is the single
+source of truth for what a scenario covers. Revisit if a real three-amigos
+process ever needs stakeholder-facing living documentation - the pattern is
+cheap to reintroduce (see git history for the prior version).
 
 ## The tooling boundary
 

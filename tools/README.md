@@ -26,7 +26,7 @@ boundary from the other side.
 npm install
 npm run typecheck        # tsc --noEmit
 npm test                 # vitest run
-npm run lint              # all three convention checks
+npm run lint              # both convention checks (flow conventions + naming)
 npm run fetch:apps        # download the Phase 1 placeholder apps
 npm run smoke:android      # run the Android smoke suite end to end
 npm run smoke:ios          # run the iOS pipeline-smoke flow end to end

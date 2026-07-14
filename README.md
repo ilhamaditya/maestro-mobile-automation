@@ -1,9 +1,9 @@
 # Maestro Mobile Automation Platform
 
-The company's Maestro-based mobile test automation platform: BDD-first,
-strictly layered, built for long-term maintenance across many teams rather
-than a one-off test script collection. See `docs/Architecture.md` for the
-full rationale.
+The company's Maestro-based mobile test automation platform: strictly
+layered, built for long-term maintenance across many teams rather than a
+one-off test script collection. See `docs/Architecture.md` for the full
+rationale.
 
 ## Status: Phase 1 (Foundational Skeleton)
 
@@ -21,8 +21,6 @@ unchanged (see `docs/GettingStarted.md`, "Swapping in a real application").
   via one vertical slice (Search) with two Android scenarios sharing
   reusable flows and sub-flows across both - the in-repo proof against
   duplication.
-- BDD traceability enforced in CI: a Gherkin scenario without a matching
-  flow (or vice versa) fails the build.
 - Selector/convention rules enforced in CI, not just documented: no raw
   sleeps, no coordinates, no XPath, no unguarded index selectors, no
   hardcoded secrets, no selectors inside a business-layer flow.
@@ -52,7 +50,6 @@ documented rather than papered over - see `docs/GettingStarted.md`).
 
 ```
 .maestro/       Maestro workspace (flows, in their 4 layers)
-features/       Gherkin scenarios (business documentation of record)
 config/         Per-environment .env.<target>.example files
 test-data/      Fixtures consumed by tools/ factories
 apps/           Sample-app fetch destinations (binaries gitignored)

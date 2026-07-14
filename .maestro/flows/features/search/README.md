@@ -6,11 +6,16 @@ lifecycle hooks (`onFlowStart`/`onFlowComplete`) - no raw selectors, no
 `tapOn` with an `id`/`text`, no assertions inline. This is enforced by
 `tools/src/lint/check-flow-conventions.ts` in CI, not just documented here.
 
-| File | Maps to | Platform | Tags |
+| File | Scenario | Platform | Tags |
 |---|---|---|---|
-| `search-wikipedia-returns-relevant-results.yaml` | `features/search-wikipedia.feature` scenario "Searching returns relevant results" | Android | `smoke`, `critical`, `search` |
-| `clearing-a-search-query-resets-empty-state.yaml` | `features/search-wikipedia.feature` scenario "Clearing a query resets the screen" | Android | `smoke`, `search` |
+| `search-wikipedia-returns-relevant-results.yaml` | Searching returns relevant results | Android | `smoke`, `critical`, `search` |
+| `clearing-a-search-query-resets-empty-state.yaml` | Clearing a query resets the screen back to its empty state | Android | `smoke`, `search` |
 | `ios-pipeline-smoke.yaml` | Not a business scenario - a CI pipeline health check. See the comment in the file for why iOS Search parity is deferred to Phase 2. | iOS | `smoke`, `pipeline-check` |
+
+The `name:` field and `tags:` on each file, plus this table, are the source
+of truth for what a scenario covers - there is deliberately no separate
+Gherkin/`.feature` layer to keep in sync alongside it (see
+`docs/Architecture.md`, "Why no Gherkin layer").
 
 Both Android scenarios share `sub-flows/complete-onboarding-android.yaml`
 (via `onFlowStart`), `sub-flows/take-screenshot.yaml` (via `onFlowComplete`),

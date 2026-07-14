@@ -20,8 +20,8 @@ onFlowComplete:
 # Business scenario: a user opens the Search tab, types a query, and sees
 # results for it. This file is deliberately selector-free - it only composes
 # reusable flows (enforced by tools/src/lint/check-flow-conventions.ts) so it
-# stays readable to a non-technical stakeholder as living documentation. See
-# features/search-wikipedia.feature for the plain-language scenario this maps to.
+# reads as the source of truth for what this scenario does, without needing
+# a separate Gherkin file kept in sync alongside it.
 - runFlow:
     file: ../../common-components/bottom-nav/navigate-to-search-tab.yaml
     env:

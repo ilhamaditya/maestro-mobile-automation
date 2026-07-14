@@ -6,10 +6,13 @@
 - Only `runFlow`, `tags`, `onFlowStart`, `onFlowComplete` - no selector, ever.
 - One file per scenario. Name it after the business behavior
   (`search-wikipedia-returns-relevant-results.yaml`), never the UI action
-  (`tap-search-button.yaml`).
-- Must be referenced by a `@flow:<name>` tag in a `features/*.feature` file,
-  unless tagged `pipeline-check` (a CI health check, not a business scenario
-  - see `.maestro/flows/features/search/ios-pipeline-smoke.yaml`).
+  (`tap-search-button.yaml`). The `name:` field, `tags:`, and this filename
+  are the source of truth for what the scenario covers - there is no
+  separate Gherkin/`.feature` file to keep in sync (see
+  `docs/Architecture.md`, "Why no Gherkin layer").
+- A flow that isn't a business scenario (e.g. a CI pipeline health check
+  like `.maestro/flows/features/search/ios-pipeline-smoke.yaml`) is tagged
+  `pipeline-check` so it reads as clearly distinct from real coverage.
 
 **Layer 2 - Reusable Flows** (`flows/reusable/<capability>/`)
 - One business capability per file, parameterized via `env`.

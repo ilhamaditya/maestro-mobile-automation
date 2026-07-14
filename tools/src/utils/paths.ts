@@ -12,4 +12,3 @@ export const CONFIG_ENV_DIR = path.join(ROOT_DIR, "config", "environments");
 export const TEST_DATA_DIR = path.join(ROOT_DIR, "test-data");
 export const APPS_DIR = path.join(ROOT_DIR, "apps");
 export const TEST_OUTPUT_DIR = path.join(ROOT_DIR, "test-output");
-export const FEATURES_DIR = path.join(ROOT_DIR, "features");

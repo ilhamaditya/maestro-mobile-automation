@@ -7,8 +7,7 @@
   "scripts": {
     "lint:flows": "tsx src/lint/check-flow-conventions.ts",
     "lint:naming": "tsx src/lint/check-naming-conventions.ts",
-    "lint:traceability": "tsx src/lint/check-feature-flow-mapping.ts",
-    "lint": "npm run lint:flows && npm run lint:naming && npm run lint:traceability",
+    "lint": "npm run lint:flows && npm run lint:naming",
     "fetch:apps": "tsx src/apps/fetch-sample-apps.ts",
     "smoke:android": "tsx src/cli/run-smoke.ts --platform android --tags smoke",
     "smoke:ios": "tsx src/cli/run-smoke.ts --platform ios --tags smoke",
