@@ -1,0 +1,9 @@
+appId: ${APP_ID}
+---
+# Asserts the typed query is visible via the search input's own echo of what
+# was typed. This deliberately does NOT assert on live Wikipedia search
+# result titles/snippets - those come from a real network call to Wikimedia's
+# production search API and would make this flow flaky and non-deterministic.
+# The input echo is guaranteed regardless of network/content state, matching
+# the pattern used by Maestro's own official example flow for this app.
+- assertVisible: ${QUERY}

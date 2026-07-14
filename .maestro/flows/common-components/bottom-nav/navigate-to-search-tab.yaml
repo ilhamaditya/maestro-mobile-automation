@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+---
+# Both Wikipedia-Android (Explore/Saved/Search/Edits/More) and Wikipedia-iOS
+# (Explore/Places/Saved/History/Search) expose a "Search" tab with identical
+# visible text - verified on both a live Android Emulator and an iOS
+# Simulator on 2026-07-14 - so this one component is genuinely cross-platform.
+- tapOn: "Search"

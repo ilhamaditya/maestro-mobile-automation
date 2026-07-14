@@ -1,0 +1,134 @@
+name: Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  MAESTRO_VERSION: "1.39.7"
+
+jobs:
+  lint:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: tools/package-lock.json
+      - name: Install tooling dependencies
+        working-directory: tools
+        run: npm ci
+      - name: Typecheck
+        working-directory: tools
+        run: npm run typecheck
+      - name: Enforced flow conventions
+        working-directory: tools
+        run: npm run lint
+      - name: Unit tests
+        working-directory: tools
+        run: npm test
+
+  android-smoke:
+    name: Android Smoke
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: tools/package-lock.json
+      - name: Install tooling dependencies
+        working-directory: tools
+        run: npm ci
+      - name: Cache Maestro CLI
+        uses: actions/cache@v4
+        with:
+          path: ~/.maestro
+          key: maestro-cli-${{ env.MAESTRO_VERSION }}-${{ runner.os }}
+      - name: Install Maestro CLI
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+      - name: Fetch sample app
+        working-directory: tools
+        run: npm run fetch:apps
+      - name: Run Android smoke suite
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          disable-animations: true
+          script: |
+            export PATH="$HOME/.maestro/bin:$PATH"
+            adb install -r apps/android/build/wikipedia.apk
+            cd tools && npm run smoke:android
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-output
+          path: test-output/android/
+          if-no-files-found: warn
+
+  ios-smoke:
+    name: iOS Smoke
+    needs: lint
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: tools/package-lock.json
+      - name: Install tooling dependencies
+        working-directory: tools
+        run: npm ci
+      - name: Cache Maestro CLI
+        uses: actions/cache@v4
+        with:
+          path: ~/.maestro
+          key: maestro-cli-${{ env.MAESTRO_VERSION }}-${{ runner.os }}
+      - name: Install Maestro CLI
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+      - name: Fetch sample app
+        working-directory: tools
+        run: npm run fetch:apps
+      - name: Boot iOS Simulator
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -m1 "iPhone 15 (" | grep -oE "[0-9A-F-]{36}")
+          echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+      - name: Install sample app
+        run: xcrun simctl install "$SIMULATOR_UDID" apps/ios/build/Wikipedia.app
+      - name: Run iOS pipeline-smoke flow
+        run: |
+          export PATH="$HOME/.maestro/bin:$PATH"
+          cd tools && npm run smoke:ios
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-output
+          path: test-output/ios/
+          if-no-files-found: warn
+
+  docker-build-check:
+    name: Docker Build Sanity Check
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build tooling image
+        run: docker build -t maestro-tooling:ci .

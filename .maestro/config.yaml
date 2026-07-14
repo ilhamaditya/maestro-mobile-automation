@@ -1,0 +1,24 @@
+# Maestro workspace configuration.
+# Reference: https://docs.maestro.dev/reference/workspace-configuration
+#
+# `flows` intentionally globs ONLY the Layer-1 business-feature flows. Reusable
+# flows, sub-flows and common-components live under this same tree but must
+# only ever be invoked via `runFlow` from a feature flow - never picked up here
+# as standalone top-level tests. This is what enforces the layering described
+# in docs/Architecture.md at the tooling level, not just in prose.
+flows:
+  - flows/features/**/*.yaml
+
+# `wip`-tagged flows are excluded by default so in-progress work never blocks
+# a smoke run. Override at the CLI with --include-tags wip when iterating.
+excludeTags:
+  - wip
+
+executionOrder:
+  continueOnFailure: true
+
+platform:
+  android:
+    disableAnimations: true
+  ios:
+    disableAnimations: true

@@ -1,0 +1,17 @@
+appId: org.wikipedia
+---
+# Wikipedia-Android shows a 4-screen first-run tutorial carousel after every
+# clearState launch. Verified against a live emulator (2026-07-14, app version
+# bundled in Maestro's official samples.zip): 3 taps on the forward button
+# advance through screens 1-3, then a 4th tap on the done button dismisses
+# screen 4 and lands on the Explore home screen.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "org.wikipedia:id/fragment_onboarding_forward_button"
+- tapOn:
+    id: "org.wikipedia:id/fragment_onboarding_forward_button"
+- tapOn:
+    id: "org.wikipedia:id/fragment_onboarding_forward_button"
+- tapOn:
+    id: "org.wikipedia:id/fragment_onboarding_done_button"

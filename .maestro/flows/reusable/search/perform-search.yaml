@@ -1,0 +1,12 @@
+appId: ${APP_ID}
+---
+# Reusable "Search" capability: focuses the search input and types a query.
+# Verified real selector: the "Search Wikipedia" pill must be tapped to focus
+# the input before inputText will land anywhere (confirmed on both platforms
+# 2026-07-14 - typing without this tap first is silently swallowed).
+- tapOn: "Search Wikipedia"
+- inputText: ${QUERY}
+- runFlow:
+    file: ../../sub-flows/dismiss-keyboard.yaml
+    env:
+      APP_ID: ${APP_ID}

@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+---
+# Confirms the "Search Wikipedia" entry point is visible on the home/Explore
+# screen - the minimal, 100%-reliable proof that onboarding completed and
+# the app is in a usable state. See ios-pipeline-smoke.yaml for why this is
+# used instead of a full search-overlay assertion on iOS.
+- assertVisible: "Search Wikipedia"

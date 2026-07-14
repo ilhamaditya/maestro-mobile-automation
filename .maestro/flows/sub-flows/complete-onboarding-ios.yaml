@@ -1,0 +1,33 @@
+appId: org.wikimedia.wikipedia
+---
+# Wikipedia-iOS uses a swipeable (not button-driven) 4-screen carousel.
+# Verified against iPhone 15 / iOS 17.2 Simulator (2026-07-14): 3 left-swipes
+# move through screens 1-3, then a tap on "Get started" dismisses screen 4.
+#
+# A "Year in Review" promo and a "You have been logged out" auth prompt can
+# both appear non-deterministically after onboarding (confirmed present in
+# this app build) - both are guarded with `when: visible` below so they are a
+# safe no-op when absent, matching Maestro's own official example for this
+# app (see e2e/workspaces/wikipedia/ios-advanced-flow.yaml upstream).
+- launchApp:
+    clearState: true
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          direction: LEFT
+          duration: 400
+      - waitForAnimationToEnd
+- tapOn: "Get started"
+- runFlow:
+    when:
+      visible:
+        text: "Explore your Wikipedia Year in Review"
+    commands:
+      - tapOn: "Done"
+- runFlow:
+    when:
+      visible: "You have been logged out"
+    commands:
+      - tapOn:
+          text: "Continue without logging in"

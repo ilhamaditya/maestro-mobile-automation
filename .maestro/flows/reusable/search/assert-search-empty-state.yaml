@@ -1,0 +1,7 @@
+appId: org.wikipedia
+---
+# Asserts the search screen has returned to its empty/placeholder state after
+# the query was cleared, and that the previous query is no longer present.
+# Both strings verified against a live Android Emulator (2026-07-14).
+- assertVisible: "Search Wikipedia in more languages"
+- assertNotVisible: ${QUERY}

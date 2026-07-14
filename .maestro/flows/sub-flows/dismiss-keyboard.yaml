@@ -1,0 +1,5 @@
+appId: ${APP_ID}
+---
+# Wraps the native hideKeyboard command behind a semantic name so call sites
+# stay readable and the mechanism can change in one place later.
+- hideKeyboard

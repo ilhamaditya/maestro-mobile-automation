@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+tools/dist/
+*.tsbuildinfo
+
+# Downloaded sample/test apps (fetched via tools/src/apps/fetch-sample-apps.ts, never committed)
+apps/android/build/
+apps/ios/build/
+*.apk
+*.ipa
+*.app/
+*.zip
+
+# Maestro + test execution artifacts
+test-output/
+.maestro/tests/
+.maestro/.cache/
+# takeScreenshot writes relative to CWD - stray captures from local/manual
+# `maestro test` runs land here if run from inside .maestro/.
+.maestro/*.png
+
+# Environment secrets (only .example files are committed)
+config/environments/.env.local
+config/environments/.env.dev
+config/environments/.env.qa
+config/environments/.env.uat
+config/environments/.env.staging
+config/environments/.env.production
+!config/environments/*.example
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
