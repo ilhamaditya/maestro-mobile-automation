@@ -1,18 +1,18 @@
 .git/
 node_modules/
-tools/node_modules/
-tools/dist/
+scripts/node_modules/
+scripts/dist/
 test-output/
 apps/android/build/
 apps/ios/build/
 
 # Real env files never enter the build context - only .example variants do.
-config/environments/.env.local
-config/environments/.env.dev
-config/environments/.env.qa
-config/environments/.env.uat
-config/environments/.env.staging
-config/environments/.env.production
+config/.env.local
+config/.env.dev
+config/.env.qa
+config/.env.uat
+config/.env.staging
+config/.env.production
 
 .DS_Store
 *.log

@@ -1,0 +1,15 @@
+{
+  "$comment": "Static fixture consumed by scripts/src/data/factories/search-query.factory.ts. Each entry is a known-stable query - picked for having a long-standing Wikipedia article/redirect so the flow's input-echo assertion stays deterministic regardless of live search-index changes.",
+  "queries": [
+    {
+      "id": "software-testing",
+      "term": "Software testing",
+      "note": "Default. Matches an established, stable Wikipedia article title directly (no redirect dependency)."
+    },
+    {
+      "id": "automation-testing",
+      "term": "Automation testing",
+      "note": "Redirects to \"Test automation\" - verified stable against a live emulator on 2026-07-14. Kept as an alternate fixture, not the default, since it depends on a redirect rather than a direct title match."
+    }
+  ]
+}

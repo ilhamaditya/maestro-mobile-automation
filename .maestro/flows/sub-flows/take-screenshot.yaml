@@ -1,7 +1,0 @@
-appId: ${APP_ID}
----
-# Generic capture point, invoked from onFlowComplete so every feature-layer
-# scenario leaves behind visual evidence regardless of pass/fail outcome.
-# Maestro already writes this into the run's debug-output directory - no
-# custom capture pipeline needed (see docs/CI-CD.md).
-- takeScreenshot: ${SCREENSHOT_NAME}

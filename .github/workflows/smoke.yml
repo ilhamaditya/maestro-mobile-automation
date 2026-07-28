@@ -19,18 +19,18 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
-          cache-dependency-path: tools/package-lock.json
+          cache-dependency-path: scripts/package-lock.json
       - name: Install tooling dependencies
-        working-directory: tools
+        working-directory: scripts
         run: npm ci
       - name: Typecheck
-        working-directory: tools
+        working-directory: scripts
         run: npm run typecheck
       - name: Enforced flow conventions
-        working-directory: tools
+        working-directory: scripts
         run: npm run lint
       - name: Unit tests
-        working-directory: tools
+        working-directory: scripts
         run: npm test
 
   android-smoke:
@@ -47,9 +47,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
-          cache-dependency-path: tools/package-lock.json
+          cache-dependency-path: scripts/package-lock.json
       - name: Install tooling dependencies
-        working-directory: tools
+        working-directory: scripts
         run: npm ci
       - name: Cache Maestro CLI
         uses: actions/cache@v4
@@ -59,7 +59,7 @@ jobs:
       - name: Install Maestro CLI
         run: curl -fsSL "https://get.maestro.mobile.dev" | bash
       - name: Fetch sample app
-        working-directory: tools
+        working-directory: scripts
         run: npm run fetch:apps
       - name: Run Android smoke suite
         uses: reactivecircus/android-emulator-runner@v2
@@ -72,7 +72,7 @@ jobs:
           script: |
             export PATH="$HOME/.maestro/bin:$PATH"
             adb install -r apps/android/build/wikipedia.apk
-            cd tools && npm run smoke:android
+            cd scripts && npm run smoke:android
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,9 +91,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
-          cache-dependency-path: tools/package-lock.json
+          cache-dependency-path: scripts/package-lock.json
       - name: Install tooling dependencies
-        working-directory: tools
+        working-directory: scripts
         run: npm ci
       - name: Cache Maestro CLI
         uses: actions/cache@v4
@@ -103,7 +103,7 @@ jobs:
       - name: Install Maestro CLI
         run: curl -fsSL "https://get.maestro.mobile.dev" | bash
       - name: Fetch sample app
-        working-directory: tools
+        working-directory: scripts
         run: npm run fetch:apps
       - name: Boot iOS Simulator
         run: |
@@ -115,7 +115,7 @@ jobs:
       - name: Run iOS pipeline-smoke flow
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          cd tools && npm run smoke:ios
+          cd scripts && npm run smoke:ios
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4

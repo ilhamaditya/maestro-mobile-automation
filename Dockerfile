@@ -1,6 +1,6 @@
 # Reproducible local/CI tooling runtime: Node + Java + Maestro CLI + adb
 # client. Deliberately NOT a containerized emulator/simulator - see
-# docs/CI-CD.md and docs/future/DockerGuide.md for why:
+# docs/CI.md for why:
 #   - iOS Simulator cannot run in a Linux container under any configuration
 #     (Xcode is macOS-only).
 #   - Android-in-Docker has a known Maestro-specific device-detection
@@ -44,8 +44,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && chown -R node:node /opt/maestro
 
 WORKDIR /workspace
-COPY tools/package*.json tools/
-RUN cd tools && npm install
+COPY scripts/package*.json scripts/
+RUN cd scripts && npm install
 
 COPY . .
 RUN chown -R node:node /workspace

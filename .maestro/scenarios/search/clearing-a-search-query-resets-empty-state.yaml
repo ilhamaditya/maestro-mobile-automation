@@ -1,0 +1,42 @@
+appId: org.wikipedia
+name: Search - clearing a query resets Search back to its empty state
+tags:
+  - android
+  - smoke
+  - search
+  - production-safe
+env:
+  APP_ID: org.wikipedia
+  QUERY: "Software testing"
+onFlowStart:
+  - runFlow: ../../helpers/complete-onboarding-android.yaml
+onFlowComplete:
+  - runFlow:
+      file: ../../helpers/take-screenshot.yaml
+      env:
+        APP_ID: ${APP_ID}
+        SCREENSHOT_NAME: clearing-a-search-query-resets-empty-state
+---
+# Scenario: a user who changes their mind mid-search can clear the query and
+# land back on an empty, unambiguous state rather than a stale or confusing
+# screen. Shares perform-search.yaml with the happy-path scenario - the
+# concrete proof-of-no-duplication for this vertical slice.
+- runFlow:
+    file: ../../helpers/navigate-to-search-tab.yaml
+    env:
+      APP_ID: ${APP_ID}
+- runFlow:
+    file: ../../flows/search/perform-search.yaml
+    env:
+      APP_ID: ${APP_ID}
+      QUERY: ${QUERY}
+- runFlow:
+    file: ../../flows/search/assert-search-query-visible.yaml
+    env:
+      APP_ID: ${APP_ID}
+      QUERY: ${QUERY}
+- runFlow: ../../flows/search/clear-search-query.yaml
+- runFlow:
+    file: ../../flows/search/assert-search-empty-state.yaml
+    env:
+      QUERY: ${QUERY}

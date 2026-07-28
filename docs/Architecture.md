@@ -1,88 +1,85 @@
 # Architecture
 
-## Why this exists
+## What
 
-This repository is the foundation of the company's mobile test automation
-platform: Maestro-based, built to be maintained by many engineers across
-many teams for years, not a one-off test script collection. Every
-architectural decision below optimizes for that timeline over short-term
-convenience.
-
-## The five layers
+Three layers, one enforced rule: **only `scenarios/` is executable.**
 
 ```
-Business Features (flows/features/**)
-        |  runFlow
-        v
-Reusable Flows (flows/reusable/**)
-        |  runFlow
-        v
-Sub Flows (flows/sub-flows/**)
-        |  runFlow
-        v
-Common Components (flows/common-components/**)
-        |
-        v
-Utilities / Configuration / Environment / Test Data
-  (tools/, config/, test-data/)
+scenarios/  (what you RUN)
+    │  runFlow
+    ▼
+flows/      (what you REUSE — selectors live here)
+    │  runFlow
+    ▼
+helpers/    (generic building blocks: onboarding, keyboard, screenshots, nav)
 ```
 
-**Business Features** are the only executable layer. `.maestro/config.yaml`'s
-`flows:` key globs only `flows/features/**/*.yaml` - Maestro will never pick
-up a reusable flow, sub-flow, or common-component file as a standalone test.
-This is what makes the layering a structural guarantee instead of a
-convention people can silently drift away from.
+- **`scenarios/`** - business scenarios, in plain language. A scenario file
+  may contain **only** `runFlow`, `tags`, and lifecycle hooks
+  (`onFlowStart`/`onFlowComplete`) - no selector, ever.
+- **`flows/`** - one business capability per file (e.g. `perform-search.yaml`),
+  parameterized via `env`. Selectors live here.
+- **`helpers/`** - generic, reusable building blocks: app-agnostic technical
+  interactions (dismiss keyboard, take screenshot) and reusable UI-pattern
+  interactions (a bottom nav, a dialog) alike.
 
-A Layer-1 file may contain **only** `runFlow`, `tags`, and lifecycle hooks
-(`onFlowStart`/`onFlowComplete`) - no selector, ever. This is enforced by
-`tools/src/lint/check-flow-conventions.ts` in CI (`feature-layer-selector-free`
-rule), not just documented here. The result: a business stakeholder can open
-any file under `flows/features/` and read what the app does without knowing
-what a resource id is.
+## Why
 
-**Reusable Flows** are where selectors live - one business capability per
-file (e.g. `perform-search.yaml`), parameterized via `env`. **Sub-Flows** are
-generic, app-agnostic technical interactions (dismiss keyboard, take
-screenshot) invoked from hooks or reusable flows. **Common Components** are
-reusable UI-pattern interactions (a bottom nav, a dialog) that multiple
-business capabilities might share.
+**Why only three layers, and why merge "technical interaction" and "UI
+component" into one `helpers/` folder?** An earlier draft of this repo split
+those into two separate layers. In practice the distinction rarely mattered
+day to day, and 9 of 10 "UI component" folders sat empty as placeholders no
+one had built yet - conceptual overhead with no payoff. Fewer layers, same
+guarantee: a new engineer needs to learn 3 ideas, not 4, to write their first
+test.
 
-## Why no Gherkin layer
+**Why is "only `scenarios/` is executable" enforced by tooling, not just by
+this doc?** `.maestro/config.yaml`'s `flows:` key globs only
+`scenarios/**/*.yaml` - Maestro will never pick up a flow or helper file as a
+standalone test. `scripts/src/lint/check-flow-conventions.ts` additionally
+fails CI if a scenario file contains anything but `runFlow`/`tags`/lifecycle
+hooks (the `scenario-layer-selector-free` rule). This is what makes the
+layering a structural guarantee instead of a convention people can silently
+drift away from - the same reason a business stakeholder can open any file
+under `scenarios/` and read what the app does without knowing what a
+resource id is.
 
-An earlier draft of this repository paired every Layer-1 flow with a
-Gherkin `.feature` file (business requirement -> `.feature` scenario ->
-`@flow:<name>` tag -> Layer-1 flow), enforced in CI by a traceability lint
-check. It was deliberately removed: this platform's real audience is QA/dev
-engineers, not non-technical stakeholders reading `.feature` files as living
-documentation, so the second file bought no readability that a
-selector-free, business-capability-named Layer-1 flow doesn't already give -
-`name:`, `tags:`, and a readable filename - while adding a second artifact to
-keep in sync and a bespoke lint check to maintain (Maestro has no native
-Cucumber/Gherkin execution, so this was always a custom approximation, not
-an industry-standard integration). The Layer-1 flow file is the single
-source of truth for what a scenario covers. Revisit if a real three-amigos
-process ever needs stakeholder-facing living documentation - the pattern is
-cheap to reintroduce (see git history for the prior version).
+**Why no Gherkin/`.feature` layer?** An earlier draft paired every scenario
+with a Gherkin `.feature` file (requirement → `.feature` scenario →
+`@flow:<name>` tag → scenario flow), enforced by a bespoke traceability lint
+check. It was removed: this repo's real audience is QA/dev engineers, not
+non-technical stakeholders reading `.feature` files as living documentation,
+so the second file bought no readability that a selector-free,
+capability-named scenario file doesn't already give - while adding a second
+artifact to keep in sync and a bespoke lint check to maintain (Maestro has no
+native Cucumber/Gherkin execution, so this was always a custom
+approximation). The scenario file is the single source of truth for what it
+covers. Cheap to reintroduce later if a real three-amigos process ever needs
+stakeholder-facing living documentation - see git history.
+
+## How
+
+See `docs/CreatingFlows.md` for the practical "where does my new file go"
+guide, and `docs/FolderStructure.md` for the full directory reference.
 
 ## The tooling boundary
 
 Two separate runtimes exist side by side and must not be confused:
 
-- **Maestro's own JS engine** (`runScript`/`evalScript` in `.maestro/scripts/`)
-  - embedded JVM (Rhino/GraalJS), cannot `require`/`import` npm packages.
-- **Node/TypeScript** (`tools/`) - env loading, test data factories, sample
-  app fetching, report aggregation, and the enforced-convention lint scripts.
-  Orchestrates the `maestro` CLI as a subprocess; never executes inside a
-  flow.
+- **Maestro's own JS engine** (`runScript`/`evalScript`, used inside a flow
+  file) - an embedded JVM (Rhino/GraalJS), cannot `require`/`import` npm
+  packages.
+- **Node/TypeScript** (`scripts/`) - env loading, test data factories,
+  sample app fetching, report aggregation, and the enforced-convention lint
+  scripts. Orchestrates the `maestro` CLI as a subprocess; never executes
+  inside a flow.
 
-See `.maestro/README.md` and `tools/README.md` for the boundary from each
-side, and `docs/FolderStructure.md` for the full directory-by-directory
-reference.
+See `scripts/README.md` for this boundary from the tooling side.
 
-## What Phase 1 deliberately does not cover
+## What this repo deliberately does not (yet) cover
 
-This repository's first slice proves the architecture end-to-end against a
-public placeholder app (Wikipedia) rather than a real company application,
-which does not exist yet for this platform. Cloud device farms, the full
-15-document doc set, and additional business flows are explicitly deferred -
-see `docs/future/` and `README.md` for what's next and why.
+This repo proves the architecture end-to-end against a public placeholder
+app (Wikipedia) rather than a real target application, which doesn't exist
+for this template yet. Cloud device farms, additional business flows, and
+full iOS Search parity are explicitly out of scope for now - see the root
+`README.md` and `docs/Troubleshooting.md`.

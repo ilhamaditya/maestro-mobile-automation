@@ -1,7 +1,0 @@
-appId: org.wikipedia
----
-# Taps the search screen's clear ("x") button. Verified Android-only real
-# resource id (2026-07-14) - not yet verified on iOS, so this reusable flow
-# is Android-scoped for Phase 1 rather than guessed for both platforms.
-- tapOn:
-    id: "org.wikipedia:id/search_close_btn"

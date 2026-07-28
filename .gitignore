@@ -3,10 +3,10 @@ node_modules/
 .pnpm-store/
 
 # Build output
-tools/dist/
+scripts/dist/
 *.tsbuildinfo
 
-# Downloaded sample/test apps (fetched via tools/src/apps/fetch-sample-apps.ts, never committed)
+# Downloaded sample/test apps (fetched via scripts/src/apps/fetch-sample-apps.ts, never committed)
 apps/android/build/
 apps/ios/build/
 *.apk
@@ -16,6 +16,9 @@ apps/ios/build/
 
 # Maestro + test execution artifacts
 test-output/
+# Maestro's own CLI hardcodes this path segment for its default debug-output
+# directory (confirmed from real captured runs) - unrelated to, and not to be
+# confused with, our own source folder .maestro/scenarios/.
 .maestro/tests/
 .maestro/.cache/
 # takeScreenshot writes relative to CWD - stray captures from local/manual
@@ -23,13 +26,13 @@ test-output/
 .maestro/*.png
 
 # Environment secrets (only .example files are committed)
-config/environments/.env.local
-config/environments/.env.dev
-config/environments/.env.qa
-config/environments/.env.uat
-config/environments/.env.staging
-config/environments/.env.production
-!config/environments/*.example
+config/.env.local
+config/.env.dev
+config/.env.qa
+config/.env.uat
+config/.env.staging
+config/.env.production
+!config/*.example
 
 # Editor / OS
 .DS_Store
