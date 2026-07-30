@@ -1,7 +1,27 @@
 appId: org.wikipedia
 ---
 # Asserts the search screen has returned to its empty/placeholder state after
-# the query was cleared, and that the previous query is no longer present.
-# Both strings verified against a live Android Emulator (2026-07-14).
+# the query was cleared. String verified against a live Android Emulator
+# (2026-07-14).
 - assertVisible: "Search Wikipedia in more languages"
-- assertNotVisible: ${QUERY}
+
+# Proves the input itself is empty by asserting it shows its placeholder.
+# Verified by dumping the real view hierarchy in both states on a live
+# emulator (2026-07-30):
+#   filled  -> search_src_text text="Software testing"
+#   cleared -> search_src_text text="Search Wikipedia"   (the placeholder)
+# so this text scoped to that id genuinely discriminates the two states.
+#
+# This deliberately replaces an earlier `assertNotVisible: ${QUERY}`, which
+# was flaky: Wikipedia persists *recent searches*, so once a query had been
+# run a few times it could reappear in the cleared screen's history list and
+# fail the assertion even though the field really was empty (observed
+# 2026-07-30 - passed twice, then failed on an identical third run).
+#
+# Note for anyone tempted by the clear ("x") button instead: it does NOT work.
+# `search_close_btn` stays in the hierarchy with real bounds and
+# enabled="true" even when the field is empty, so `assertNotVisible` on it
+# fails (verified 2026-07-30 - this was tried first).
+- assertVisible:
+    id: "org.wikipedia:id/search_src_text"
+    text: "Search Wikipedia"

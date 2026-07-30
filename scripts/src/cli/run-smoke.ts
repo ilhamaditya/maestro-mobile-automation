@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execa } from "execa";
-import { loadEnvironment } from "../env/load-env.js";
+import { loadEnvironment, toMaestroArgs } from "../env/load-env.js";
 import { MAESTRO_WORKSPACE_DIR, TEST_OUTPUT_DIR } from "../utils/paths.js";
 import { createLogger } from "../utils/logger.js";
 import { aggregateReports } from "../reporting/aggregate-reports.js";
@@ -80,17 +80,13 @@ export async function runSmoke(options: CliOptions): Promise<void> {
   const platformOutputDir = path.join(TEST_OUTPUT_DIR, options.platform);
   fs.mkdirSync(platformOutputDir, { recursive: true });
 
-  // The env file's SEARCH_QUERY key maps onto the flow's ${QUERY} variable.
-  //
-  // CAVEAT - this currently has no effect on either Search scenario. Both
-  // declare `QUERY` in their own `env:` block, and Maestro 1.39.7 lets a
-  // flow-level `env:` value SHADOW the CLI `-e` flag rather than treating it
-  // as an overridable default. Verified on a live emulator (2026-07-30):
-  // passing `-e QUERY=Automation testing` still typed "Software testing".
-  // An isolated flow with no `env:` block does honor `-e`, so the flag
-  // itself works - the scenario declaration wins when both are present.
-  // See docs/Troubleshooting.md for the full reproduction.
-  const dataArgs = env["SEARCH_QUERY"] ? ["-e", `QUERY=${env["SEARCH_QUERY"]}`] : [];
+  // Environment values (app IDs, and later URLs/credentials) are passed
+  // through as-is. Deliberately NOT used to inject a scenario's test data:
+  // a flow-level `env:` block SHADOWS the CLI `-e` flag in Maestro 1.39.7
+  // rather than acting as an overridable default (verified on a live
+  // emulator, 2026-07-30 - see docs/Troubleshooting.md), so a scenario's own
+  // `env:` block is the single source of truth for its inputs.
+  const envArgs = toMaestroArgs(env);
 
   // Confirmed empirically (2026-07-14): Maestro's --include-tags is OR-only,
   // even across repeated flags - `--include-tags android,smoke` (or
@@ -115,7 +111,7 @@ export async function runSmoke(options: CliOptions): Promise<void> {
     path.join(platformOutputDir, "report.xml"),
     "--debug-output",
     path.join(platformOutputDir, "debug"),
-    ...dataArgs,
+    ...envArgs,
   ];
 
   logger.info(`Running: maestro ${args.join(" ")}`);

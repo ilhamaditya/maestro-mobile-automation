@@ -36,7 +36,6 @@ onFlowComplete:
       APP_ID: ${APP_ID}
       QUERY: ${QUERY}
 - runFlow: ../../flows/search/clear-search-query.yaml
-- runFlow:
-    file: ../../flows/search/assert-search-empty-state.yaml
-    env:
-      QUERY: ${QUERY}
+# No env needed: the empty-state assertion now checks the input field's own
+# state rather than the query string, so it doesn't need to know the query.
+- runFlow: ../../flows/search/assert-search-empty-state.yaml

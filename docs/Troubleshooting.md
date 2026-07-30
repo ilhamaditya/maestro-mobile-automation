@@ -19,11 +19,11 @@ to the checked-in `config/.env.example` so a fresh clone runs without any
 local setup. Run `cp config/.env.example config/.env` if you need to
 override a value locally; the real `.env` is gitignored.
 
-## Changing `SEARCH_QUERY` in `config/.env` has no effect
+## A `-e` value from `config/.env` doesn't reach my flow
 
-**Known limitation of Maestro 1.39.7, verified on a live emulator
-(2026-07-30).** A flow-level `env:` value *shadows* the CLI `-e` flag - it is
-not an overridable default, which is the opposite of what you'd expect.
+**Known Maestro 1.39.7 behavior, verified on a live emulator (2026-07-30).**
+A flow-level `env:` value *shadows* the CLI `-e` flag - it is not an
+overridable default, which is the opposite of what you'd expect.
 
 Reproduction:
 
@@ -37,28 +37,42 @@ maestro test flow.yaml -e MYVAR=from-cli
 #   -> passes (so `-e` itself works fine)
 ```
 
-Both Search scenarios declare `QUERY` in their own `env:` block, so the
-`-e QUERY=...` that `run-smoke.ts` builds from `config/.env` is silently
-ignored. Confirmed end to end: passing `-e QUERY=Automation testing` still
-typed "Software testing" into the app.
+This is why `config/.env` holds only values that vary by *where* you run (app
+IDs, later URLs/credentials) and never a scenario's test data. A scenario's
+inputs vary by *what* it tests, so they belong in that scenario's own `env:`
+block - which, given the shadowing above, is authoritative anyway.
 
-**To change the query today,** edit the scenario's `env:` block. Removing
-`QUERY` from the two scenarios would make `config/.env` authoritative, at the
-cost of an undefined variable if a scenario is ever run without `-e`.
+`run-smoke.ts` still passes every `config/.env` value through as `-e`, so a
+flow that does *not* declare a name locally can read it.
 
-## `assertNotVisible: ${QUERY}` in the clearing scenario intermittently fails
+## Wikipedia's recent-search history broke an empty-state assertion
 
-`.maestro/flows/search/assert-search-empty-state.yaml` asserts the previous
-query is gone after clearing. Wikipedia persists *recent searches*, so once
-the same query has been run enough times, it can reappear in the empty
-state's history list inside the assertion's retry window and fail with
-`Assertion is false: "<query>" is visible`.
+Fixed 2026-07-30, recorded because the failure mode generalizes. The clearing
+scenario used to assert `assertNotVisible: ${QUERY}` after clearing the
+field. Wikipedia persists *recent searches*, so once the same query had run a
+few times it reappeared in the cleared screen's history list and failed with
+`Assertion is false: "<query>" is visible` - passing twice, then failing on
+an identical third run.
 
-Observed 2026-07-30: the same scenario passed twice, then failed on a third
-identical run with no code change. Clearing app data
-(`adb shell pm clear org.wikipedia`) resets the history and the scenario
-passes again. A durable fix would assert on the search *field* being empty
-rather than on the query string being absent from the whole screen.
+The fix asserts the input shows its placeholder instead, which is what
+actually defines "empty". Confirmed by dumping the view hierarchy in both
+states on a live emulator:
+
+```
+filled  -> search_src_text text="Software testing"
+cleared -> search_src_text text="Search Wikipedia"   (the placeholder)
+```
+
+A first attempt using the clear ("x") button's absence **did not work** -
+`search_close_btn` stays in the hierarchy with real bounds and
+`enabled="true"` even when the field is empty, so `assertNotVisible` on it
+fails. Worth knowing before you reach for the same idea.
+
+Two general rules came out of this: assert on the element that *defines* the
+state you care about rather than a side effect other features can also
+produce, and when a selector's behavior isn't obvious, dump the hierarchy
+(`adb shell uiautomator dump`) instead of inferring it from a screenshot -
+a view can be invisible on screen and still present to the matcher.
 
 ## `npm run lint` fails
 
