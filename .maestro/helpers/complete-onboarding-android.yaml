@@ -7,6 +7,19 @@ appId: org.wikipedia
 # screen 4 and lands on the Explore home screen.
 - launchApp:
     clearState: true
+
+# Synchronise on the carousel actually being on screen before tapping it.
+# Observed 2026-07-30: a run failed with "Element not found: Id matching
+# regex: org.wikipedia:id/fragment_onboarding_forward_button" right after
+# clearState - the first tap can outrun the first onboarding screen when the
+# emulator is busy. Waiting on state rather than sleeping (see
+# docs/BestPractices.md); the later taps are covered by tapOn's own implicit
+# wait, since by then the carousel is known to be rendered.
+- extendedWaitUntil:
+    visible:
+      id: "org.wikipedia:id/fragment_onboarding_forward_button"
+    timeout: 15000
+
 - tapOn:
     id: "org.wikipedia:id/fragment_onboarding_forward_button"
 - tapOn:

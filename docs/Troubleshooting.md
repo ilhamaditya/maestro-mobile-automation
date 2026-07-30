@@ -45,14 +45,20 @@ block - which, given the shadowing above, is authoritative anyway.
 `run-smoke.ts` still passes every `config/.env` value through as `-e`, so a
 flow that does *not* declare a name locally can read it.
 
-## Wikipedia's recent-search history broke an empty-state assertion
+## An empty-state assertion was intermittently failing
 
 Fixed 2026-07-30, recorded because the failure mode generalizes. The clearing
 scenario used to assert `assertNotVisible: ${QUERY}` after clearing the
-field. Wikipedia persists *recent searches*, so once the same query had run a
-few times it reappeared in the cleared screen's history list and failed with
-`Assertion is false: "<query>" is visible` - passing twice, then failing on
-an identical third run.
+field, and failed once with `Assertion is false: "Software testing" is
+visible` among otherwise-identical runs.
+
+**The exact trigger was never pinned down** - a focused 3x reproduction
+afterwards did not fire it. Candidates are the stale results list or the
+`recent_searches_container` list still rendering inside the assertion's
+window. That uncertainty is the point: the assertion was asking the wrong
+question, so the specific race hardly matters. "The query string is absent
+from the screen" is not the same claim as "the field is empty", and several
+parts of this screen can legitimately display that string.
 
 The fix asserts the input shows its placeholder instead, which is what
 actually defines "empty". Confirmed by dumping the view hierarchy in both

@@ -13,10 +13,17 @@ appId: org.wikipedia
 # so this text scoped to that id genuinely discriminates the two states.
 #
 # This deliberately replaces an earlier `assertNotVisible: ${QUERY}`, which
-# was flaky: Wikipedia persists *recent searches*, so once a query had been
-# run a few times it could reappear in the cleared screen's history list and
-# fail the assertion even though the field really was empty (observed
-# 2026-07-30 - passed twice, then failed on an identical third run).
+# was intermittently failing with `Assertion is false: "Software testing" is
+# visible` (observed once on 2026-07-30 among otherwise-identical runs; a
+# focused 3x repro afterwards did not trigger it, so the exact trigger is
+# NOT pinned down - candidates are the stale results list or the
+# recent_searches_container list still rendering inside the assert window).
+#
+# The point is that the old assertion was the wrong question: "the query
+# string is absent from the screen" is not the same claim as "the field is
+# empty", and several parts of this screen can legitimately show that string.
+# Asserting the field's own state is unambiguous and can't be raced by other
+# views.
 #
 # Note for anyone tempted by the clear ("x") button instead: it does NOT work.
 # `search_close_btn` stays in the hierarchy with real bounds and
