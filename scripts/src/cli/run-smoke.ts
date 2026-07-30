@@ -81,8 +81,15 @@ export async function runSmoke(options: CliOptions): Promise<void> {
   fs.mkdirSync(platformOutputDir, { recursive: true });
 
   // The env file's SEARCH_QUERY key maps onto the flow's ${QUERY} variable.
-  // Omitted entirely (rather than passed as empty) when absent, so the
-  // flow's own header default ("Software testing") applies instead.
+  //
+  // CAVEAT - this currently has no effect on either Search scenario. Both
+  // declare `QUERY` in their own `env:` block, and Maestro 1.39.7 lets a
+  // flow-level `env:` value SHADOW the CLI `-e` flag rather than treating it
+  // as an overridable default. Verified on a live emulator (2026-07-30):
+  // passing `-e QUERY=Automation testing` still typed "Software testing".
+  // An isolated flow with no `env:` block does honor `-e`, so the flag
+  // itself works - the scenario declaration wins when both are present.
+  // See docs/Troubleshooting.md for the full reproduction.
   const dataArgs = env["SEARCH_QUERY"] ? ["-e", `QUERY=${env["SEARCH_QUERY"]}`] : [];
 
   // Confirmed empirically (2026-07-14): Maestro's --include-tags is OR-only,

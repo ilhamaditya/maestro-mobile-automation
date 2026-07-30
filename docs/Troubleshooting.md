@@ -19,6 +19,47 @@ to the checked-in `config/.env.example` so a fresh clone runs without any
 local setup. Run `cp config/.env.example config/.env` if you need to
 override a value locally; the real `.env` is gitignored.
 
+## Changing `SEARCH_QUERY` in `config/.env` has no effect
+
+**Known limitation of Maestro 1.39.7, verified on a live emulator
+(2026-07-30).** A flow-level `env:` value *shadows* the CLI `-e` flag - it is
+not an overridable default, which is the opposite of what you'd expect.
+
+Reproduction:
+
+```bash
+# Flow that declares `env: MYVAR: "from-flow-env"`
+maestro test flow.yaml -e MYVAR=from-cli
+#   -> assertTrue ${MYVAR == "from-cli"} FAILS (flow value won)
+
+# Same flow with the `env:` block removed
+maestro test flow.yaml -e MYVAR=from-cli
+#   -> passes (so `-e` itself works fine)
+```
+
+Both Search scenarios declare `QUERY` in their own `env:` block, so the
+`-e QUERY=...` that `run-smoke.ts` builds from `config/.env` is silently
+ignored. Confirmed end to end: passing `-e QUERY=Automation testing` still
+typed "Software testing" into the app.
+
+**To change the query today,** edit the scenario's `env:` block. Removing
+`QUERY` from the two scenarios would make `config/.env` authoritative, at the
+cost of an undefined variable if a scenario is ever run without `-e`.
+
+## `assertNotVisible: ${QUERY}` in the clearing scenario intermittently fails
+
+`.maestro/flows/search/assert-search-empty-state.yaml` asserts the previous
+query is gone after clearing. Wikipedia persists *recent searches*, so once
+the same query has been run enough times, it can reappear in the empty
+state's history list inside the assertion's retry window and fail with
+`Assertion is false: "<query>" is visible`.
+
+Observed 2026-07-30: the same scenario passed twice, then failed on a third
+identical run with no code change. Clearing app data
+(`adb shell pm clear org.wikipedia`) resets the history and the scenario
+passes again. A durable fix would assert on the search *field* being empty
+rather than on the query string being absent from the whole screen.
+
 ## `npm run lint` fails
 
 Read the violation's `rule` name and `detail` - both point at the specific
