@@ -11,7 +11,7 @@ CLI as a subprocess.
 
 | Path | Purpose |
 |---|---|
-| `src/env/` | Loads `config/.env.<target>`, the one genuine gap in Maestro's own CLI (no native `.env` support). |
+| `src/env/` | Loads `config/.env`, the one genuine gap in Maestro's own CLI (no native `.env` support). |
 | `src/data/factories/` | Resolves `data/*.json` into values flows consume via `-e` flags. |
 | `src/apps/` | Fetches and checksums the placeholder sample apps. |
 | `src/reporting/` | Aggregates native Maestro JUnit output across platforms into one summary. |

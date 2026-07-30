@@ -12,12 +12,12 @@ both an emulator and a simulator are running, be aware only one platform's
 command will find the right one - stop the other if you get an unexpected
 match.
 
-## "No local .env.\<target\> found - falling back to the committed .example"
+## "No local config/.env found - falling back to the committed .env.example"
 
 This is a warning, not an error - `scripts/src/env/load-env.ts` falls back
-to the checked-in `.env.<target>.example` file so a fresh clone runs
-without any local setup. Copy the example to a real `.env.<target>` file in
-`config/` if you need to override a value locally; it's gitignored.
+to the checked-in `config/.env.example` so a fresh clone runs without any
+local setup. Run `cp config/.env.example config/.env` if you need to
+override a value locally; the real `.env` is gitignored.
 
 ## `npm run lint` fails
 

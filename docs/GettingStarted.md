@@ -30,7 +30,8 @@ Wikipedia placeholder:
 1. Replace `scripts/src/apps/fetch-sample-apps.ts` with your app's real
    build/download process.
 2. Update `appId` in every `.maestro/**/*.yaml` file.
-3. Update `APP_ID_ANDROID`/`APP_ID_IOS` in `config/.env.*`.
+3. Update `APP_ID_ANDROID`/`APP_ID_IOS` in `config/.env` (and
+   `config/.env.example`, which is the committed default).
 4. Rewrite `.maestro/helpers/complete-onboarding-{android,ios}.yaml` and
    everything under `.maestro/flows/search/` - these are Wikipedia-specific
    and won't apply to a different app.

@@ -28,10 +28,12 @@ even ones only ever invoked via `runFlow` - a file with no `appId` fails to
 parse. See `docs/CreatingFlows.md`.
 
 **Q: How do I run against a different environment (qa, staging, etc.)?**
-`--env <target>` on `run-smoke.ts` - see `docs/RunningTests.md`. All six
-environments currently carry the same placeholder values; this proves the
-*mechanism*, ready for a real multi-environment app to fill in per-target
-values.
+There's one `config/.env` file - this template deliberately doesn't ship
+multi-environment support, because the placeholder app has no backend
+environments to switch between. To add it, reintroduce per-target files and
+an `--env <target>` flag in `scripts/src/cli/run-smoke.ts`; the `-e` flag
+translation in `toMaestroArgs` already works regardless of file count. See
+`config/README.md`.
 
 **Q: Why is this using a Wikipedia app instead of our real app?**
 No real target application exists for this template yet. Wikipedia is

@@ -6,43 +6,33 @@ import { createLogger } from "../utils/logger.js";
 
 const logger = createLogger("env");
 
-export const VALID_TARGETS = ["local", "dev", "qa", "uat", "staging", "production"] as const;
-export type EnvironmentTarget = (typeof VALID_TARGETS)[number];
-
-export function isEnvironmentTarget(value: string): value is EnvironmentTarget {
-  return (VALID_TARGETS as readonly string[]).includes(value);
-}
-
 export interface LoadEnvOptions {
   /** Layered on top of file-based values - e.g. CI-injected secrets. */
   overrides?: Record<string, string>;
-  /** Override the directory .env files are read from. Exposed for tests. */
+  /** Override the directory the .env file is read from. Exposed for tests. */
   envDir?: string;
 }
 
 /**
  * Fills the one genuine gap in Maestro's own CLI: it has no native .env file
  * support (shell vars prefixed MAESTRO_ auto-import, but nothing reads a
- * file). Falls back to the committed `.example` file so a fresh clone can
- * run immediately against the Phase 1 placeholder app.
+ * file). Reads `config/.env`, falling back to the committed `.env.example`
+ * so a fresh clone can run immediately against the placeholder app.
  */
-export function loadEnvironment(
-  target: EnvironmentTarget,
-  options: LoadEnvOptions = {},
-): Record<string, string> {
+export function loadEnvironment(options: LoadEnvOptions = {}): Record<string, string> {
   const dir = options.envDir ?? CONFIG_ENV_DIR;
-  const realFile = path.join(dir, `.env.${target}`);
-  const exampleFile = path.join(dir, `.env.${target}.example`);
+  const realFile = path.join(dir, ".env");
+  const exampleFile = path.join(dir, ".env.example");
   const fileToRead = fs.existsSync(realFile) ? realFile : exampleFile;
 
   if (!fs.existsSync(fileToRead)) {
     throw new Error(
-      `No environment file found for target "${target}" (looked for ${realFile} and ${exampleFile})`,
+      `No environment file found (looked for ${realFile} and ${exampleFile})`,
     );
   }
   if (fileToRead === exampleFile) {
     logger.warn(
-      `No local .env.${target} found - falling back to the committed .env.${target}.example. Copy it to .env.${target} to customize.`,
+      "No local config/.env found - falling back to the committed .env.example. Copy it to config/.env to customize.",
     );
   }
 

@@ -80,7 +80,7 @@ specific environment/tag): `docs/RunningTests.md`.
 ```
 maestro-mobile-automation/
 ├── .maestro/          Maestro workspace: scenarios/, flows/, helpers/
-├── config/            .env.<target>.example per environment
+├── config/            .env.example (copy to .env, gitignored)
 ├── data/              Static fixtures consumed by scripts/ factories
 ├── apps/               Sample-app fetch destinations (gitignored binaries)
 ├── scripts/            Node/TypeScript orchestration, lint, reporting
@@ -132,11 +132,14 @@ verification discipline this repo holds every selector to:
 
 ## Environment variables
 
-Six targets - `local`, `dev`, `qa`, `uat`, `staging`, `production` - one
-`config/.env.<target>` file each (only `.example` variants are committed).
-`scripts/src/env/load-env.ts` fills the one real gap in Maestro's CLI: no
-native `.env` file support. Details: `config/README.md`,
+One file - `config/.env` (only `.env.example` is committed; copy it to get
+started). `scripts/src/env/load-env.ts` fills the one real gap in Maestro's
+CLI: no native `.env` file support. Details: `config/README.md`,
 `docs/RunningTests.md`.
+
+```bash
+cp config/.env.example config/.env
+```
 
 ## Common commands
 

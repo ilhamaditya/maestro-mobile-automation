@@ -2,19 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { isEnvironmentTarget, loadEnvironment, toMaestroArgs, VALID_TARGETS } from "../../src/env/load-env.js";
-
-describe("VALID_TARGETS / isEnvironmentTarget", () => {
-  it("accepts every documented environment name", () => {
-    for (const target of VALID_TARGETS) {
-      expect(isEnvironmentTarget(target)).toBe(true);
-    }
-  });
-
-  it("rejects an unknown environment name", () => {
-    expect(isEnvironmentTarget("does-not-exist")).toBe(false);
-  });
-});
+import { loadEnvironment, toMaestroArgs } from "../../src/env/load-env.js";
 
 describe("loadEnvironment", () => {
   let envDir: string;
@@ -27,26 +15,35 @@ describe("loadEnvironment", () => {
     fs.rmSync(envDir, { recursive: true, force: true });
   });
 
-  it("reads a real .env.<target> file when present", () => {
-    fs.writeFileSync(path.join(envDir, ".env.local"), "APP_ID_ANDROID=org.example\n");
+  it("reads a real .env file when present", () => {
+    fs.writeFileSync(path.join(envDir, ".env"), "APP_ID_ANDROID=org.example\n");
 
-    const result = loadEnvironment("local", { envDir });
+    const result = loadEnvironment({ envDir });
 
     expect(result["APP_ID_ANDROID"]).toBe("org.example");
   });
 
-  it("falls back to the .example file when no real file exists", () => {
-    fs.writeFileSync(path.join(envDir, ".env.qa.example"), "APP_ID_ANDROID=org.wikipedia\n");
+  it("falls back to .env.example when no real file exists", () => {
+    fs.writeFileSync(path.join(envDir, ".env.example"), "APP_ID_ANDROID=org.wikipedia\n");
 
-    const result = loadEnvironment("qa", { envDir });
+    const result = loadEnvironment({ envDir });
 
     expect(result["APP_ID_ANDROID"]).toBe("org.wikipedia");
   });
 
-  it("layers overrides on top of file-based values", () => {
-    fs.writeFileSync(path.join(envDir, ".env.local"), "SEARCH_QUERY=Software testing\n");
+  it("prefers the real .env over .env.example when both exist", () => {
+    fs.writeFileSync(path.join(envDir, ".env"), "SEARCH_QUERY=Real value\n");
+    fs.writeFileSync(path.join(envDir, ".env.example"), "SEARCH_QUERY=Example value\n");
 
-    const result = loadEnvironment("local", {
+    const result = loadEnvironment({ envDir });
+
+    expect(result["SEARCH_QUERY"]).toBe("Real value");
+  });
+
+  it("layers overrides on top of file-based values", () => {
+    fs.writeFileSync(path.join(envDir, ".env"), "SEARCH_QUERY=Software testing\n");
+
+    const result = loadEnvironment({
       envDir,
       overrides: { SEARCH_QUERY: "Overridden query" },
     });
@@ -55,7 +52,7 @@ describe("loadEnvironment", () => {
   });
 
   it("throws a clear error when neither a real nor an example file exists", () => {
-    expect(() => loadEnvironment("staging", { envDir })).toThrow(/No environment file found/);
+    expect(() => loadEnvironment({ envDir })).toThrow(/No environment file found/);
   });
 });
 

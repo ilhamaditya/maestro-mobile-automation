@@ -6,13 +6,8 @@ test-output/
 apps/android/build/
 apps/ios/build/
 
-# Real env files never enter the build context - only .example variants do.
-config/.env.local
-config/.env.dev
-config/.env.qa
-config/.env.uat
-config/.env.staging
-config/.env.production
+# The real env file never enters the build context - only .env.example does.
+config/.env
 
 .DS_Store
 *.log

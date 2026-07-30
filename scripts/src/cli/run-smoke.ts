@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execa } from "execa";
-import { isEnvironmentTarget, loadEnvironment, VALID_TARGETS, type EnvironmentTarget } from "../env/load-env.js";
+import { loadEnvironment } from "../env/load-env.js";
 import { MAESTRO_WORKSPACE_DIR, TEST_OUTPUT_DIR } from "../utils/paths.js";
 import { createLogger } from "../utils/logger.js";
 import { aggregateReports } from "../reporting/aggregate-reports.js";
@@ -13,13 +13,11 @@ type Platform = "android" | "ios";
 interface CliOptions {
   platform: Platform;
   tags: string[];
-  environment: EnvironmentTarget;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
   let platform: Platform | undefined;
   let tags = ["smoke"];
-  let environment = "local";
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -38,19 +36,14 @@ export function parseArgs(argv: string[]): CliOptions {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-    } else if (arg === "--env") {
-      environment = argv[++i] ?? environment;
     }
   }
 
   if (!platform) {
     throw new Error("--platform android|ios is required");
   }
-  if (!isEnvironmentTarget(environment)) {
-    throw new Error(`--env must be one of: ${VALID_TARGETS.join(", ")} (got "${environment}")`);
-  }
 
-  return { platform, tags, environment };
+  return { platform, tags };
 }
 
 /** Finds the first non-offline, non-unauthorized connected Android device/emulator serial. */
@@ -79,7 +72,7 @@ async function findIosDevice(): Promise<string> {
 }
 
 export async function runSmoke(options: CliOptions): Promise<void> {
-  const env = loadEnvironment(options.environment);
+  const env = loadEnvironment();
   const deviceId =
     options.platform === "android" ? await findAndroidDevice() : await findIosDevice();
   logger.info(`Targeting ${options.platform} device ${deviceId}`);

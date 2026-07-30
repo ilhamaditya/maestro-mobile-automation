@@ -25,14 +25,9 @@ test-output/
 # `maestro test` runs land here if run from inside .maestro/.
 .maestro/*.png
 
-# Environment secrets (only .example files are committed)
-config/.env.local
-config/.env.dev
-config/.env.qa
-config/.env.uat
-config/.env.staging
-config/.env.production
-!config/*.example
+# Environment secrets (only .env.example is committed)
+config/.env
+!config/.env.example
 
 # Editor / OS
 .DS_Store

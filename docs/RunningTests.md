@@ -57,18 +57,17 @@ the right device; the other will need the other one stopped first.
 - **Combined summary:** `npm run report:aggregate` regenerates
   `test-output/summary.json` across both platforms.
 
-## Running against a specific environment
+## Environment values
+
+Values like the app IDs and the search query come from `config/.env`:
 
 ```bash
-cd scripts
-npx tsx src/cli/run-smoke.ts --platform android --tags smoke --env qa
+cp config/.env.example config/.env   # then edit as needed
 ```
 
-`--env` selects which `config/.env.<target>` file to load (`local`, `dev`,
-`qa`, `uat`, `staging`, `production` - see `config/README.md`). If no local
-`.env.<target>` file exists, the loader falls back to the committed
-`.env.<target>.example` with a warning, so this always works on a fresh
-clone.
+If no `config/.env` exists the loader falls back to the committed
+`.env.example` with a warning, so a fresh clone always works. See
+`config/README.md`.
 
 ## Running a subset by tag
 

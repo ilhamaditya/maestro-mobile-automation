@@ -9,7 +9,7 @@ maestro-mobile-automation/
 │   ├── scenarios/              RUN these. Selector-free. Grouped by capability.
 │   ├── flows/                  REUSE these. Selectors live here.
 │   └── helpers/                 Generic building blocks (onboarding, keyboard, nav...)
-├── config/                     .env.<target>.example per environment
+├── config/                     .env.example (copy to .env, gitignored)
 ├── data/                       Static fixtures consumed by scripts/ factories
 ├── apps/{android,ios}/         Sample-app fetch destinations (gitignored binaries)
 ├── scripts/                    Node/TypeScript orchestration (scripts/README.md)
